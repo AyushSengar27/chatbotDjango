@@ -24,7 +24,9 @@ def process_user_prompt(request):
             # Access the validated data
             username = serializer.validated_data['username']
             prompt = serializer.validated_data['prompt']
-            
+            if username=='admin':
+
+                raise InternalServerException()
             # Create a dummy response object
             response = process_input(prompt)
             # Serialize the dummy response
