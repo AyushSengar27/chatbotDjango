@@ -46,6 +46,7 @@ Helpful answer:
 
 
 class PromptResponder:
+    #Initialize the PromptResponder with an index name.
     def __init__(self, index_name):
         self.embeddings = OpenAIEmbeddings(model="text-embedding-3-small",openai_api_key=OPENAI_API_KEY)
         self.PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
@@ -53,6 +54,7 @@ class PromptResponder:
         self.init_network()
 
     def init_network(self):
+         #Initialize all network-related components, handles exceptions related to network issues
         try:
             self.docsearch = self.init_docseacrh()
             self.simple_retriever = SimpleRetriever(vector_store=self.docsearch, k=10)
@@ -66,6 +68,7 @@ class PromptResponder:
             raise InternalServerException("Failed to initialize promptResponder") from e
         
     def init_docseacrh(self):
+        #Initialize document search from an existing Pinecone index, handles network related exceptions.
         try:
             return PineconeVectorStore.from_existing_index(index_name=self.index_name, embedding=self.embeddings)
         except Exception as e:
@@ -74,6 +77,7 @@ class PromptResponder:
 
 
     def init_llm(self):
+        #Initialize the language model, handles network related exceptions.
         try:
             return ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name='gpt-4', temperature=0.8)
         except Exception as e:
@@ -81,6 +85,7 @@ class PromptResponder:
             raise NetworkException() from e
 
     def respond(self, data):
+        #Process the given input data and respond, handles all exceptions during the response generation.
         try:
             response = self.qa(data)
             return response
@@ -89,6 +94,7 @@ class PromptResponder:
             raise InternalServerException("Error occurred while responding") from e
 
     def init_qa(self):
+        #Initialize the question-answering system, handles network related exceptions
         try:
             return RetrievalQA.from_chain_type(llm=self.llm, chain_type="stuff", retriever=self.simple_retriever, chain_type_kwargs={"prompt": self.PROMPT})
         except Exception as e:
@@ -99,11 +105,13 @@ class PromptResponder:
 responder = None
 
 def retry_network_init():
+    #Attempt to re-initialize network components if the first initialization fails.
     global responder
     if responder:
         responder.init_network()
 
 def process_input(data):
+    #Process the input through the responder, handle and report any exceptions that occur
     global responder
         
     try:

@@ -3,7 +3,11 @@
 import os
 import sys
 
-
+"""
+    Main function that runs administrative tasks for a Django project.
+    This function sets the necessary environment variables, checks for the presence of Django,
+    and executes command-line arguments to manage the Django project.
+"""
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chatbot.settings')
